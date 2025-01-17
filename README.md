@@ -1,2 +1,0 @@
-# sentinel
-Sentinel policy
