@@ -43,11 +43,10 @@ jobs:
       run: |
         echo `pwd`
         echo "** Running Terraform Init**"
-        terraform -chdir=${{ env.tfcode_path }} init
+        terraform -chdir=$GITHUB_WORKSPACE/${{ env.tfcode_path }} init
           
         echo "** Running Terraform Validate**"
-        terraform -chdir=${{ env.tfcode_path }} validate
-      working-directory: ${{ env.tfcode_path }}
+        terraform -chdir=$GITHUB_WORKSPACE/${{ env.tfcode_path }} validate
 
     - name: Terraform Plan
       uses: hashicorp/tfc-workflows-github/actions/create-run@v1.3.0
