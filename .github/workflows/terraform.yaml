@@ -1,5 +1,5 @@
 # This workflow will create AWS resource using TF Cloud 
-# It is reusable workflow that can be called in other workflows mine
+# It is reusable workflow that can be called in other workflows
 
 name: AWS Infra Creation Using in TF Cloud 
 
@@ -15,12 +15,10 @@ on:
   workflow_dispatch:
 
 env:
+  tfcode_path: src
   tfc_hostname: app.terraform.io
   tfc_organisation: Debo_200
   tfc_workspace: sentinel
-defaults:
-  run:
-    working-directory: src
 
 jobs: 
   aws_tfc_job:
@@ -49,7 +47,7 @@ jobs:
           
         echo "** Running Terraform Validate**"
         terraform validate
-      working-directory: src
+      working-directory: ${{ env.tfcode_path }}
 
     - name: Terraform Plan
       uses: hashicorp/tfc-workflows-github/actions/create-run@v1.3.0
