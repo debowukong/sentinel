@@ -32,7 +32,7 @@ jobs:
 
     # Configure Terraform cloud API token, since we are using Remote backend option of Terraform cloud in AWS code
     - name: Setup Terraform CLI
-      uses: hashicorp/setup-terraform@v2.0.2
+      uses: hashicorp/setup-terraform@v2
       with:
         cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
@@ -43,10 +43,10 @@ jobs:
       run: |
         echo `pwd`
         echo "** Running Terraform Init**"
-        terraform init
+        terraform -chdir=${{ env.tfcode_path }} init
           
         echo "** Running Terraform Validate**"
-        terraform validate
+        terraform -chdir=${{ env.tfcode_path }} validate
       working-directory: ${{ env.tfcode_path }}
 
     - name: Terraform Plan
