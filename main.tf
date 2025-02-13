@@ -10,7 +10,7 @@ resource "aws_subnet" "my_subnet" {
 
 resource "aws_instance" "my_instance" {
   ami           = "ami-08a52ddb321b32a8c"  # Replace with a valid AMI ID
-  instance_type = "t2.micro"
+  instance_type = "t2.medium"
   subnet_id     = aws_subnet.my_subnet.id
   associate_public_ip_address = false  # Prevent public IP assignment
 
