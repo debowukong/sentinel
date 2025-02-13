@@ -12,7 +12,7 @@ on:
     branches: [ "neptune" ]
 
 env:
-  tfcode_path: sentinel
+  tfcode_path: ./sentinel
   tfc_hostname: app.terraform.io
   tfc_organisation: Debo_200
   tfc_workspace: sentinel
