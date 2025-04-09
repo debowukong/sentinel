@@ -1,15 +1,3 @@
-terraform {
-  required_version = "0.13.5"
-
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      # Choose a version that is compatible with your configuration.
-      version = "~> 3.0"
-    }
-  }
-}
-
 provider "aws" {
   region = "us-east-1"
 }
