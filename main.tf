@@ -73,8 +73,8 @@ resource "aws_iam_role_policy_attachment" "cluster_AmazonEKSClusterPolicy" {
 #
 # EKS Cluster Resource
 #
-resource "aws_eks_cluster" "example" {
-  name = "example"
+resource "aws_eks_cluster" "demo_example" {
+  name = "demo_cluster"
 
   access_config {
     authentication_mode = "API"
@@ -95,4 +95,25 @@ resource "aws_eks_cluster" "example" {
   depends_on = [
     aws_iam_role_policy_attachment.cluster_AmazonEKSClusterPolicy,
   ]
+}
+
+resource "aws_eks_addon" "example" {
+  cluster_name                = "demo_cluster"
+  addon_name                  = "coredns"
+  addon_version               = "v1.10.1-eksbuild.1"
+  resolve_conflicts_on_create = "OVERWRITE"
+
+  configuration_values = jsonencode({
+    replicaCount = 4
+    resources = {
+      limits = {
+        cpu    = "100m"
+        memory = "150Mi"
+      }
+      requests = {
+        cpu    = "100m"
+        memory = "150Mi"
+      }
+    }
+  })
 }
