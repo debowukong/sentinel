@@ -2,37 +2,35 @@ provider "aws" {
   region = "us-east-1"
 }
 
-resource "aws_cloudformation_stack" "network" {
-  name = "networking-stack"
+resource "aws_sns_topic" "secure_topic" {
+  name = "secure-sns-topic"
+}
 
-  parameters = {
-    VPCCidr = "10.0.0.0/16"
-  }
+resource "aws_sns_topic_policy" "secure_policy" {
+  arn    = aws_sns_topic.secure_topic.arn
 
-  template_body = jsonencode({
-    Parameters = {
-      VPCCidr = {
-        Type        = "String"
-        Default     = "10.0.0.0/16"
-        Description = "Enter the CIDR block for the VPC. Default is 10.0.0.0/16."
-      }
-    }
-
-    Resources = {
-      myVpc = {
-        Type = "AWS::EC2::VPC"
-        Properties = {
-          CidrBlock = {
-            "Ref" = "VPCCidr"
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid       = "AllowOnlyVPCEndpointAccess"
+        Effect    = "Deny"
+        Principal = "*"
+        Action    = "sns:*"
+        Resource  = aws_sns_topic.secure_topic.arn
+        Condition = {
+          StringNotEquals = {
+            "aws:SourceVpce" = aws_vpc_endpoint.sns.id
           }
-          Tags = [
-            {
-              Key   = "Name"
-              Value = "Primary_CF_VPC"
-            }
-          ]
         }
+      },
+      {
+        Sid       = "AllowVPCEndpointAccess"
+        Effect    = "Allow"
+        Principal = "*"
+        Action    = "sns:*"
+        Resource  = aws_sns_topic.secure_topic.arn
       }
-    }
+    ]
   })
 }
