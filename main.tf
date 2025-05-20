@@ -2,6 +2,8 @@ provider "aws" {
   region = "us-east-1"
 }
 
+data "aws_region" "current" {}
+
 # Replace this with your AWS Account ID
 variable "account_id" {
   default = "122610525295"
@@ -60,7 +62,7 @@ resource "aws_security_group" "sns_vpce_sg" {
 
 resource "aws_vpc_endpoint" "sns" {
   vpc_id              = aws_vpc.main.id
-  service_name        = "com.amazonaws.${var.region}.sns"
+  service_name        = "com.amazonaws.${data.aws_region.current.name}.sns"
   vpc_endpoint_type   = "Interface"
   subnet_ids          = aws_subnet.private[*].id
   security_group_ids  = [aws_security_group.sns_vpce_sg.id]
