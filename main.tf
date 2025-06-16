@@ -9,125 +9,39 @@ variable "account_id" {
   default = "122610525295"
 }
 
-#########################
-# VPC and Networking
-#########################
+resource "aws_athena_data_catalog" "example" {
+  name        = "athena-data-catalog"
+  description = "Example Athena data catalog"
+  type        = "LAMBDA"
 
-resource "aws_vpc" "main" {
-  cidr_block           = "10.0.0.0/16"
-  enable_dns_support   = true
-  enable_dns_hostnames = true
+  parameters = {
+    "function" = "arn:aws:lambda:eu-central-1:123456789012:function:not-important-lambda-function"
+  }
 
   tags = {
-    Name = "main-vpc"
+    Name = "example-athena-data-catalog"
   }
 }
 
-resource "aws_subnet" "private" {
-  count                   = 2
-  vpc_id                  = aws_vpc.main.id
-  cidr_block              = cidrsubnet(aws_vpc.main.cidr_block, 8, count.index)
-  availability_zone       = data.aws_availability_zones.available.names[count.index]
-  map_public_ip_on_launch = false
+resource "aws_athena_workgroup" "example" {
+  name = "example"
 
-  tags = {
-    Name = "private-subnet-${count.index}"
-  }
-}
+  configuration {
+    enforce_workgroup_configuration    = true
+    publish_cloudwatch_metrics_enabled = true
 
-data "aws_availability_zones" "available" {}
+    result_configuration {
+      output_location = "s3://${aws_s3_bucket.example.bucket}/output/"
 
-resource "aws_security_group" "sns_vpce_sg" {
-  name   = "sns-vpce-sg"
-  vpc_id = aws_vpc.main.id
-
-  ingress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = [aws_vpc.main.cidr_block]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-}
-
-#########################
-# VPC Endpoint for SNS
-#########################
-
-resource "aws_vpc_endpoint" "sns" {
-  vpc_id              = aws_vpc.main.id
-  service_name        = "com.amazonaws.${data.aws_region.current.name}.sns"
-  vpc_endpoint_type   = "Interface"
-  subnet_ids          = aws_subnet.private[*].id
-  security_group_ids  = [aws_security_group.sns_vpce_sg.id]
-  private_dns_enabled = true
-
-  tags = {
-    Name = "sns-vpc-endpoint"
-  }
-}
-
-#########################
-# SNS Topic + Policy
-#########################
-
-resource "aws_sns_topic" "secure_topic" {
-  name = "secure-topic-vpce"
-}
-
-data "aws_iam_policy_document" "sns_topic_policy" {
-  policy_id = "__default_policy_ID"
-
-  statement {
-    sid    = "DenyNonVPCEAccess"
-    effect = "Deny"
-    actions = [
-      "SNS:Subscribe",
-      "SNS:SetTopicAttributes",
-      "SNS:RemovePermission",
-      "SNS:Receive",
-      "SNS:Publish",
-      "SNS:ListSubscriptionsByTopic",
-      "SNS:GetTopicAttributes",
-      "SNS:DeleteTopic",
-      "SNS:AddPermission"
-    ]
-    resources = [aws_sns_topic.secure_topic.arn]
-
-    principals {
-      type        = "AWS"
-      identifiers = ["*"]
-    }
-
-    condition {
-      test     = "StringNotEquals"
-      variable = "aws:SourceVpce"
-      values   = [aws_vpc_endpoint.sns.id]
-    }
-  }
-
-  statement {
-    sid    = "AllowVPCEAccess"
-    effect = "Allow"
-    actions = [
-      "SNS:*"
-    ]
-    resources = [aws_sns_topic.secure_topic.arn]
-
-    principals {
-      type        = "AWS"
-      identifiers = ["*"]
+      encryption_configuration {
+        encryption_option = "SSE_KMS"
+        kms_key_arn       = aws_kms_key.example.arn
+      }
     }
   }
 }
 
-resource "aws_sns_topic_policy" "secure_policy" {
-  arn    = aws_sns_topic.secure_topic.arn
-  policy = data.aws_iam_policy_document.sns_topic_policy.json
+resource "aws_athena_capacity_reservation" "example" {
+  name        = "example-reservation"
+  target_dpus = 24
 }
