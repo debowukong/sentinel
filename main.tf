@@ -10,8 +10,10 @@ resource "aws_cloudtrail" "example" {
   enable_logging                = true
 
   event_selector {
-    read_write_type           = "All"
-    include_management_events = true
+    read_write_type                 = "All"
+    include_management_events       = true
+    exclude_management_event_sources = [
+      "events.amazonaws.com"
+    ]
   }
 }
-
