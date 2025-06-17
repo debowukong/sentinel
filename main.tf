@@ -2,10 +2,6 @@ provider "aws" {
   region = "us-east-1"
 }
 
-provider "aws" {
-  region = "us-east-1"
-}
-
 ##############################
 # 1. S3 Bucket for Results
 ##############################
