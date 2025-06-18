@@ -79,7 +79,7 @@ resource "aws_athena_workgroup" "secure" {
       output_location = "s3://sentinel-athena-query-results-demo/"
     }
 
-    execution_role = aws_iam_role.athena_execution_role.arn
+    execution_role = "arn:aws:iam::123456789012:role/AthenaExecutionRole"
   }
 
   state = "ENABLED"
