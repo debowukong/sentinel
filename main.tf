@@ -10,4 +10,6 @@ resource "aws_elasticache_cluster" "example" {
   parameter_group_name = "default.memcached1.4"
   apply_immediately    = true
   port                 = 11211
+
+  maintenance_window   = "sun:05:00-sun:06:00" # Approved window
 }
