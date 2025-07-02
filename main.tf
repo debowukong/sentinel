@@ -2,11 +2,6 @@ provider "aws" {
   region = "us-east-1"
 }
 
-# 1. Create the secret
-resource "aws_secretsmanager_secret" "example" {
-  name = "example"
-}
-
 # 2. IAM Policy Document allowing access to the secret
 data "aws_iam_policy_document" "example" {
   statement {
@@ -18,7 +13,7 @@ data "aws_iam_policy_document" "example" {
     ]
 
     resources = [
-      aws_secretsmanager_secret.example.arn
+      "arn:aws:secretsmanager:us-east-1:123456789012:secret:your-secret-name-abc123"
     ]
   }
 }
