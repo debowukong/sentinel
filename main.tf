@@ -2,120 +2,86 @@ provider "aws" {
   region = "us-east-1"
 }
 
-# 2. IAM Policy Document allowing access to the secret
-data "aws_iam_policy_document" "example" {
-  statement {
-    sid    = "AllowReadSecret"
-    effect = "Allow"
+data "aws_caller_identity" "current" {}
 
-    actions = [
-      "secretsmanager:GetSecretValue"
-    ]
-
-    resources = [
-      "*"
-    ]
-  }
-}
-
-# 3. IAM Policy from the policy document
-resource "aws_iam_policy" "example" {
-  name        = "AllowReadExampleSecret"
-  description = "Allows GetSecretValue on example secret"
-  policy      = data.aws_iam_policy_document.example.json
-}
-
-# 4. Create the IAM Role
-resource "aws_iam_role" "iam_role" {
-  name = "example-iam-role"
-
-  assume_role_policy = jsonencode({
+resource "aws_kms_key" "example" {
+  description             = "An example symmetric encryption KMS key"
+  enable_key_rotation     = true
+  deletion_window_in_days = 20
+  policy = jsonencode({
     Version = "2012-10-17"
+    Id      = "key-default-1"
     Statement = [
       {
+        Sid    = "Enable IAM User Permissions"
         Effect = "Allow"
         Principal = {
-          Service = "ec2.amazonaws.com" # or whatever AWS service/principal you want
-        }
-        Action = "sts:AssumeRole"
+          AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+        },
+        Action   = "kms:*"
+        Resource = "*"
+      },
+      {
+        Sid    = "Allow administration of the key"
+        Effect = "Allow"
+        Principal = {
+          AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:user/Alice"
+        },
+        Action = [
+          "kms:ReplicateKey",
+          "kms:Create*",
+          "kms:Describe*",
+          "kms:Enable*",
+          "kms:List*",
+          "kms:Put*",
+          "kms:Update*",
+          "kms:Revoke*",
+          "kms:Disable*",
+          "kms:Get*",
+          "kms:Delete*",
+          "kms:ScheduleKeyDeletion",
+          "kms:CancelKeyDeletion"
+        ],
+        Resource = "*"
+      },
+      {
+        Sid    = "Allow use of the key"
+        Effect = "Allow"
+        Principal = {
+          AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:user/Bob"
+        },
+        Action = [
+          "kms:DescribeKey",
+          "kms:Encrypt",
+          "kms:Decrypt",
+          "kms:ReEncrypt*",
+          "kms:GenerateDataKey",
+          "kms:GenerateDataKeyWithoutPlaintext"
+        ],
+        Resource = "*"
       }
     ]
   })
+  tags = {
+    Name        = "example-kms-key"
+    Environment = "dev"
+  }
 }
 
-# 5. Attach the policy to the role
-resource "aws_iam_role_policy_attachment" "secret_access" {
-  role       = aws_iam_role.iam_role.name
-  policy_arn = aws_iam_policy.example.arn
+resource "aws_kms_key" "primary" {
+  region = "us-east-1"
+
+  description             = "Multi-Region primary key"
+  deletion_window_in_days = 30
+  multi_region            = true
 }
 
-resource "aws_iam_group_policy" "my_developer_policy" {
-  name  = "my_developer_policy"
-  group = aws_iam_group.my_developers.name
-
-  # Terraform's "jsonencode" function converts a
-  # Terraform expression result to valid JSON syntax.
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = [
-          "ec2:Describe*",
-        ]
-        Effect   = "Allow"
-        Resource = "*"
-      },
-    ]
-  })
-}
-
-resource "aws_iam_group" "my_developers" {
-  name = "developers"
-  path = "/users/"
-}
-
-resource "aws_iam_policy" "policy" {
-  name        = "test_policy"
-  path        = "/"
-  description = "My test policy"
-
-  # Terraform's "jsonencode" function converts a
-  # Terraform expression result to valid JSON syntax.
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = [
-          "ec2:Describe*",
-        ]
-        Effect   = "Allow"
-        Resource = "*"
-      },
-    ]
-  })
-}
-
-resource "aws_iam_user_policy" "lb_ro" {
-  name = "test"
-  user = aws_iam_user.lb.name
-
-  # Terraform's "jsonencode" function converts a
-  # Terraform expression result to valid JSON syntax.
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = [
-          "ec2:Describe*",
-        ]
-        Effect   = "Allow"
-        Resource = "*"
-      },
-    ]
-  })
-}
-
-resource "aws_iam_user" "lb" {
-  name = "loadbalancer"
-  path = "/system/"
+resource "aws_kms_replica_key" "replica" {
+  description             = "Multi-Region replica key"
+  deletion_window_in_days = 7
+  primary_key_arn         = aws_kms_key.primary.arn
+  tags = {
+    Name        = "replica-kms-key"
+    Environment = "dev"
+  }
 }
