@@ -14,7 +14,7 @@ resource "aws_kms_key" "example1" {
         Sid    = "Enable IAM User Permissions"
         Effect = "Allow"
         Principal = {
-          AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+          AWS = "*"
         },
         Action   = "kms:*"
         Resource = "*"
@@ -23,8 +23,8 @@ resource "aws_kms_key" "example1" {
         Sid    = "Allow administration of the key"
         Effect = "Allow"
         Principal = {
-          AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:user/Alice"
-        },
+          AWS = "*"
+        }
         Action = [
           "kms:ReplicateKey",
           "kms:Create*",
@@ -46,7 +46,7 @@ resource "aws_kms_key" "example1" {
         Sid    = "Allow use of the key"
         Effect = "Allow"
         Principal = {
-          AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:user/Bob"
+          AWS = "*"
         },
         Action = [
           "kms:DescribeKey",
@@ -78,7 +78,7 @@ resource "aws_kms_key_policy" "example2" {
         Sid    = "Enable IAM User Permissions"
         Effect = "Allow"
         Principal = {
-          AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+          AWS = "*"
         },
         Action   = "kms:*"
         Resource = "*"
