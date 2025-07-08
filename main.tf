@@ -13,18 +13,14 @@ resource "aws_kms_key" "example1" {
       {
         Sid    = "Enable IAM User Permissions"
         Effect = "Allow"
-        Principal = {
-          AWS = "*"
-        },
+        Principal = AWS = "*",
         Action   = "kms:*"
         Resource = "*"
       },
       {
         Sid    = "Allow administration of the key"
         Effect = "Allow"
-        Principal = {
-          AWS = "*"
-        }
+        Principal = "*",
         Action = [
           "kms:ReplicateKey",
           "kms:Create*",
