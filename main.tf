@@ -12,14 +12,14 @@ resource "aws_kms_key" "example1" {
     Statement = [
       {
         Sid    = "Enable IAM User Permissions"
-        Effect = "Allow"
-        Principal = AWS = "*",
+        Effect = "Allow",
+        Principal = "*",
         Action   = "kms:*"
         Resource = "*"
       },
       {
         Sid    = "Allow administration of the key"
-        Effect = "Allow"
+        Effect = "Allow",
         Principal = "*",
         Action = [
           "kms:ReplicateKey",
