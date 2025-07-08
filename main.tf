@@ -2,8 +2,6 @@ provider "aws" {
   region = "us-east-1"
 }
 
-data "aws_caller_identity" "current" {}
-
 resource "aws_kms_key" "example1" {
   description             = "An example symmetric encryption KMS key"
   enable_key_rotation     = true
