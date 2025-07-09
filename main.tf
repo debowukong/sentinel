@@ -8,7 +8,7 @@ resource "aws_kms_key" "example" {
   description             = "An example symmetric encryption KMS key"
   enable_key_rotation     = true
   deletion_window_in_days = 20
-  rotation_period_in_days = 30
+  rotation_period_in_days = 365
   policy = jsonencode({
     Version = "2012-10-17"
     Id      = "key-default-1"
