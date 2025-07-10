@@ -2,28 +2,31 @@ provider "aws" {
   region = "us-east-1"
 }
 
-resource "aws_iam_role" "test_role" {
-  name = "test_role"
+resource "aws_iam_policy" "policy" {
+  name        = "test_policy"
+  path        = "/"
+  description = "My test policy"
 
   # Terraform's "jsonencode" function converts a
   # Terraform expression result to valid JSON syntax.
-  assume_role_policy = jsonencode({
+  policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
       {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Sid    = ""
-        Principal = {
-          Service = "ec2.amazonaws.com"
+        Action = [
+          "ec2:Describe*",
+        ]
+        Effect   = "Allow"
+        Resource = "*"
+        Condition = {
+          IpAddress = {
+            "aws:SourceIp" = [
+              "203.0.113.0/24",
+              "198.51.100.0/24"
+            ]
+          }
         }
       },
     ]
   })
-
-  max_session_duration = 3600
-
-  tags = {
-    tag-key = "tag-value"
-  }
 }
