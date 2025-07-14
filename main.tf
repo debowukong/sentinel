@@ -18,11 +18,6 @@ resource "aws_iam_role" "test_role" {
         Principal = {
           Service = "ec2.amazonaws.com"
         }
-        Condition = {
-          Bool = {
-            "aws:MultiFactorAuthPresent" = "true"
-          }
-        }
       },
     ]
   })
@@ -40,12 +35,6 @@ data "aws_iam_policy_document" "instance_assume_role_policy" {
     principals {
       type        = "Service"
       identifiers = ["ec2.amazonaws.com"]
-    }
-
-    condition {
-      test     = "Bool"
-      variable = "aws:MultiFactorAuthPresent"
-      values   = ["true"]
     }
   }
 }
