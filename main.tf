@@ -1,3 +1,29 @@
+resource "aws_iam_user" "user" {
+  name = "test-user"
+}
+
+resource "aws_iam_policy" "policy" {
+  name        = "test-policy"
+  description = "A test policy"
+  policy      = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Action = [
+          "sts:GetSessionToken"
+        ],
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_user_policy_attachment" "test-attach" {
+  user       = aws_iam_user.user.name
+  policy_arn = aws_iam_policy.policy.arn
+}
+
 provider "aws" {
   region = "us-east-1"
 }
@@ -18,6 +44,11 @@ resource "aws_iam_role" "test_role" {
         Principal = {
           Service = "ec2.amazonaws.com"
         }
+        Condition = {
+          Bool = {
+            "aws:MultiFactorAuthPresent" = "true"
+          }
+        }
       },
     ]
   })
@@ -35,6 +66,12 @@ data "aws_iam_policy_document" "instance_assume_role_policy" {
     principals {
       type        = "Service"
       identifiers = ["ec2.amazonaws.com"]
+    }
+
+    condition {
+      test     = "Bool"
+      variable = "aws:MultiFactorAuthPresent"
+      values   = ["true"]
     }
   }
 }
