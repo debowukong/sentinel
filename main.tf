@@ -61,32 +61,4 @@ resource "aws_glue_job" "example" {
     script_location = "s3://your-bucket-name/scripts/your-glue-script.py"
     python_version  = "3"
   }
-
-  default_arguments = {
-    # Resource allocation configuration
-    "--job-language"                     = "python"
-    "--job-bookmark-option"              = "job-bookmark-enable"
-    "--TempDir"                          = "s3://aws-glue-temporary-{account-id}/temporary/"
-    
-    # Performance tuning
-    "--enable-glue-datacatalog"          = "true"
-    "--enable-spark-ui"                  = "true"
-    "--spark-event-logs-path"            = "s3://aws-glue-assets-{account-id}/sparkHistoryLogs/"
-    "--enable-job-insights"              = "true"
-    "--enable-auto-scaling"              = "true"
-    
-    # Worker configuration
-    "--number-of-workers"                = "5"
-    "--worker-type"                      = "G.1X"
-    "--max-capacity"                     = "10"
-    "--max-retries"                      = "3"
-    "--timeout"                          = "2880"  # 48 hours in minutes
-    
-    # Additional parameters
-    "--conf"                             = "spark.sql.sources.partitionOverwriteMode=dynamic"
-    "--datalake-formats"                 = "hudi,delta,iceberg"
-    "--additional-python-modules"        = "boto3==1.24.91,pandas==1.5.3"
-    "--extra-py-files"                   = "s3://bucket-name/path/to/additional/python/modules.zip"
-    "--extra-jars"                       = "s3://bucket-name/path/to/additional/jars.jar"
-  }
 }
