@@ -63,12 +63,6 @@ resource "aws_glue_job" "example" {
   }
 
   default_arguments = {
-    # CloudWatch logging configuration
-    "--continuous-log-logGroup"          = aws_cloudwatch_log_group.example.name
-    "--enable-continuous-cloudwatch-log" = "true"
-    "--enable-continuous-log-filter"     = "true"
-    "--enable-metrics"                   = ""
-    
     # Resource allocation configuration
     "--job-language"                     = "python"
     "--job-bookmark-option"              = "job-bookmark-enable"
