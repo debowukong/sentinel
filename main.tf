@@ -1,83 +1,42 @@
-resource "aws_iam_user" "user" {
-  name = "test-user"
+resource "aws_cloudwatch_log_group" "example" {
+  name              = "example"
+  retention_in_days = 14
 }
 
-resource "aws_iam_policy" "policy" {
-  name        = "test-policy"
-  description = "A test policy"
-  policy      = jsonencode({
-    Version = "2012-10-17",
-    Statement = [
-      {
-        Effect = "Allow",
-        Action = [
-          "sts:GetSessionToken"
-        ],
-        Resource = "*"
-      }
-    ]
-  })
-}
+resource "aws_glue_job" "example" {
+  # ... other configuration ...
 
-resource "aws_iam_user_policy_attachment" "test-attach" {
-  user       = aws_iam_user.user.name
-  policy_arn = aws_iam_policy.policy.arn
-}
-
-provider "aws" {
-  region = "us-east-1"
-}
-
-# Basic example usage
-resource "aws_iam_role" "test_role" {
-  name = "test_role"
-
-  # Terraform's "jsonencode" function converts a
-  # Terraform expression result to valid JSON syntax.
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Sid    = ""
-        Principal = {
-          Service = "ec2.amazonaws.com"
-        }
-        Condition = {
-          Bool = {
-            "aws:MultiFactorAuthPresent" = "true"
-          }
-        }
-      },
-    ]
-  })
-
-  tags = {
-    tag-key = "tag-value"
+  default_arguments = {
+    # CloudWatch logging configuration
+    "--continuous-log-logGroup"          = aws_cloudwatch_log_group.example.name
+    "--enable-continuous-cloudwatch-log" = "true"
+    "--enable-continuous-log-filter"     = "true"
+    "--enable-metrics"                   = ""
+    
+    # Resource allocation configuration
+    "--job-language"                     = "python"
+    "--job-bookmark-option"              = "job-bookmark-enable"
+    "--TempDir"                          = "s3://aws-glue-temporary-{account-id}/temporary/"
+    
+    # Performance tuning
+    "--enable-glue-datacatalog"          = "true"
+    "--enable-spark-ui"                  = "true"
+    "--spark-event-logs-path"            = "s3://aws-glue-assets-{account-id}/sparkHistoryLogs/"
+    "--enable-job-insights"              = "true"
+    "--enable-auto-scaling"              = "true"
+    
+    # Worker configuration
+    "--number-of-workers"                = "5"
+    "--worker-type"                      = "G.1X"
+    "--max-capacity"                     = "10"
+    "--max-retries"                      = "3"
+    "--timeout"                          = "2880"  # 48 hours in minutes
+    
+    # Additional parameters
+    "--conf"                             = "spark.sql.sources.partitionOverwriteMode=dynamic"
+    "--datalake-formats"                 = "hudi,delta,iceberg"
+    "--additional-python-modules"        = "boto3==1.24.91,pandas==1.5.3"
+    "--extra-py-files"                   = "s3://bucket-name/path/to/additional/python/modules.zip"
+    "--extra-jars"                       = "s3://bucket-name/path/to/additional/jars.jar"
   }
-}
-
-# Using Data source for Assume Role policy 
-data "aws_iam_policy_document" "instance_assume_role_policy" {
-  statement {
-    actions = ["sts:AssumeRole"]
-
-    principals {
-      type        = "Service"
-      identifiers = ["ec2.amazonaws.com"]
-    }
-
-    condition {
-      test     = "Bool"
-      variable = "aws:MultiFactorAuthPresent"
-      values   = ["true"]
-    }
-  }
-}
-
-resource "aws_iam_role" "instance" {
-  name               = "instance_role"
-  path               = "/system/"
-  assume_role_policy = data.aws_iam_policy_document.instance_assume_role_policy.json
 }
