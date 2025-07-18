@@ -1,64 +1,57 @@
-resource "aws_cloudwatch_log_group" "example" {
-  name              = "example"
-  retention_in_days = 14
+resource "aws_security_group" "lb_sg" {
+  name        = "lb-security-group"
+  description = "Security group for load balancer"
+  vpc_id      = aws_vpc.main.id
+
+  # Allow HTTP from anywhere
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "HTTP from anywhere"
+  }
+
+  # Allow HTTPS from anywhere
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "HTTPS from anywhere"
+  }
+
+  # Allow all outbound traffic
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "Allow all outbound traffic"
+  }
+
+  tags = {
+    Name        = "lb-security-group"
+    Environment = "production"
+  }
 }
 
-# IAM role for AWS Glue job
-resource "aws_iam_role" "glue_service_role" {
-  name = "AWSGlueServiceRole-example"
-  
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Principal = {
-          Service = "glue.amazonaws.com"
-        }
-        Action = "sts:AssumeRole"
-      }
-    ]
-  })
-}
+resource "aws_lb" "test" {
+  name               = "test-lb-tf"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = [aws_security_group.lb_sg.id]
+  subnets            = [for subnet in aws_subnet.public : subnet.id]
 
-# Attach AWS managed policy for Glue
-resource "aws_iam_role_policy_attachment" "glue_service" {
-  role       = aws_iam_role.glue_service_role.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole"
-}
+  enable_deletion_protection = true
 
-# Additional policy for S3 access
-resource "aws_iam_role_policy" "glue_s3_policy" {
-  name = "GlueS3Policy"
-  role = aws_iam_role.glue_service_role.id
-  
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Action = [
-          "s3:GetObject",
-          "s3:PutObject",
-          "s3:DeleteObject",
-          "s3:ListBucket"
-        ]
-        Resource = [
-          "arn:aws:s3:::your-bucket-name/*",
-          "arn:aws:s3:::your-bucket-name"
-        ]
-      }
-    ]
-  })
-}
+  access_logs {
+    bucket  = aws_s3_bucket.lb_logs.id
+    prefix  = "test-lb"
+    enabled = true
+  }
 
-resource "aws_glue_job" "example" {
-  name     = "example-glue-job"
-  role_arn = aws_iam_role.glue_service_role.arn
-  
-  command {
-    name            = "glueetl"
-    script_location = "s3://your-bucket-name/scripts/your-glue-script.py"
-    python_version  = "3"
+  tags = {
+    Environment = "production"
   }
 }
