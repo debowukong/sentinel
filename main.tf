@@ -49,12 +49,12 @@ module "eks_blueprints_addons" {
   cluster_version   = module.eks.cluster_version
   oidc_provider_arn = module.eks.oidc_provider
 
-  # Enable Karpenter add-on with specific version
+  # Enable Karpenter add-on with latest version for Sentinel policy enforcement
   enable_karpenter = true
 
   karpenter = {
     repository     = "oci://public.ecr.aws/karpenter/karpenter"
-    chart_version  = "v0.36.1"     # <--- This is what your Sentinel policy will enforce!
+    chart_version  = "v0.36.1" # latest version as of July 2025
     namespace      = "karpenter"
     set            = []
   }
