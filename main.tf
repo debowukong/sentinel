@@ -1,5 +1,5 @@
 provider "aws" {
-  region = "us-east-1"
+  region = "us-west-2"
 }
 
 module "vpc" {
@@ -13,14 +13,15 @@ module "vpc" {
 }
 
 module "eks" {
-  source          = "aws-ia/eks-blueprints/aws"
-  version         = "4.26.0"
+  source  = "terraform-aws-modules/eks/aws"
+  version = "19.15.3"
+  
   cluster_name    = "blueprints-eks"
   cluster_version = "1.29"
   vpc_id          = module.vpc.vpc_id
-  private_subnet_ids = module.vpc.private_subnets
+  subnet_ids      = module.vpc.private_subnets
 
-  managed_node_groups = {
+  eks_managed_node_groups = {
     default = {
       min_size     = 1
       max_size     = 2
@@ -37,7 +38,7 @@ module "eks_blueprints_addons" {
   cluster_name      = module.eks.cluster_name
   cluster_endpoint  = module.eks.cluster_endpoint
   cluster_version   = module.eks.cluster_version
-  oidc_provider_arn = module.eks.oidc_provider_arn
+  oidc_provider_arn = module.eks.oidc_provider
 
   # Enable Karpenter add-on with specific version
   enable_karpenter = true
