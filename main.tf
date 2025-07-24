@@ -1,3 +1,12 @@
+terraform {
+  required_providers {
+    helm = {
+      source  = "hashicorp/helm"
+      version = ">= 2.7.0"
+    }
+  }
+}
+
 provider "aws" {
   region = "us-west-2"
 }
