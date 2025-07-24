@@ -43,9 +43,10 @@ module "eks_blueprints_addons" {
   # Enable Karpenter add-on with specific version
   enable_karpenter = true
 
-  karpenter_helm_config = {
-    chart_version = "v0.36.1"      # <--- This is what your Sentinel policy will enforce!
-    namespace     = "karpenter"
-    values        = []
+  karpenter = {
+    repository     = "oci://public.ecr.aws/karpenter/karpenter"
+    chart_version  = "v0.36.1"     # <--- This is what your Sentinel policy will enforce!
+    namespace      = "karpenter"
+    set            = []
   }
 }
