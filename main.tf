@@ -1,7 +1,5 @@
 
 ### Terraform Code: Provision S3 Bucket with SSL Enforcement
-
-```hcl
 resource "aws_s3_bucket" "secure_bucket" {
   bucket = var.bucket_name
   acl    = "private"
@@ -54,7 +52,6 @@ resource "aws_s3_bucket_policy" "enforce_ssl_policy" {
     ]
   })
 }
-```
 
 ### Explanation:
 1. **`aws_s3_bucket` Resource**:
@@ -71,7 +68,7 @@ resource "aws_s3_bucket_policy" "enforce_ssl_policy" {
 ### Variables:
 Define the variables used in the code (`var.bucket_name`, `var.logging_bucket_name`) in a `variables.tf` file:
 
-```hcl
+
 variable "bucket_name" {
   description = "The name of the S3 bucket"
   type        = string
@@ -81,6 +78,5 @@ variable "logging_bucket_name" {
   description = "The name of the bucket where access logs will be stored"
   type        = string
 }
-```
 
 This format matches the requested structure and ensures clarity and maintainability. Let me know if you need further assistance!
