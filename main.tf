@@ -1,7 +1,7 @@
+### Terraform Code: Provision S3 Bucket with SSL Enforcement (No Variables)
 
-### Terraform Code: Provision S3 Bucket with SSL Enforcement
 resource "aws_s3_bucket" "secure_bucket" {
-  bucket = var.bucket_name
+  bucket = "my-secure-bucket"
   acl    = "private"
 
   server_side_encryption_configuration {
@@ -17,7 +17,7 @@ resource "aws_s3_bucket" "secure_bucket" {
   }
 
   logging {
-    target_bucket = var.logging_bucket_name
+    target_bucket = "my-logging-bucket"
     target_prefix = "logs/"
   }
 
@@ -51,14 +51,4 @@ resource "aws_s3_bucket_policy" "enforce_ssl_policy" {
       }
     ]
   })
-}
-
-variable "bucket_name" {
-  description = "The name of the S3 bucket"
-  type        = string
-}
-
-variable "logging_bucket_name" {
-  description = "The name of the bucket where access logs will be stored"
-  type        = string
 }
