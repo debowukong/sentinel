@@ -1,6 +1,6 @@
 terraform {
   backend "s3" {
-    bucket = "122610525295-bucket-state-file-karpenter"
+    bucket = "053936224785-bucket-state-file-karpenter"
     region = "us-east-1"
     key    = "karpenter.tfstate"
   }
@@ -23,7 +23,8 @@ terraform {
 
 provider "aws" {
   region = var.region
-  allowed_account_ids = ["122610525295"]  # Explicitly set to only your account
+  # Allow both account IDs for now
+  allowed_account_ids = ["122610525295", "053936224785"]
 }
 
 # Explicitly declare the Karpenter version for Sentinel policy validation
