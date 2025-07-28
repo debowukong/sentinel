@@ -23,7 +23,7 @@ terraform {
 
 provider "aws" {
   region = var.region
-  allowed_account_ids = [var.aws_account_id]
+  allowed_account_ids = ["122610525295"]  # Explicitly set to only your account
 }
 
 # Explicitly declare the Karpenter version for Sentinel policy validation
