@@ -41,7 +41,7 @@ provider "kubectl" {
 
 terraform {
   backend "s3" {
-    bucket = "XXXXXXXXXXXX-bucket-state-file-karpenter"
+    bucket = "122610525295-bucket-state-file-karpenter"
     region = "ap-southeast-2"
     key    = "karpenter.tfstate"
   }
@@ -49,11 +49,31 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 5.0"
+      version = "~> 5.61.0"
     }
     kubectl = {
       source  = "gavinbunney/kubectl"
-      version = "~> 1.14"
+      version = "~> 1.19.0"
+    }
+    helm = {
+      source  = "hashicorp/helm"
+      version = ">= 2.7.0"
+    }
+    time = {
+      source  = "hashicorp/time"
+      version = ">= 0.9.0"
+    }
+    tls = {
+      source  = "hashicorp/tls"
+      version = ">= 3.0.0"
+    }
+    null = {
+      source  = "hashicorp/null"
+      version = ">= 3.0.0"
+    }
+    cloudinit = {
+      source  = "hashicorp/cloudinit"
+      version = ">= 2.0.0"
     }
   }
 }
