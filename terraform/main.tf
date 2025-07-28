@@ -42,14 +42,14 @@ provider "kubectl" {
 terraform {
   backend "s3" {
     bucket = "122610525295-bucket-state-file-karpenter"
-    region = "ap-southeast-2"
+    region = "us-east-1"
     key    = "karpenter.tfstate"
   }
 
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 5.61.0"
+      version = "~> 6.0.0"
     }
     kubectl = {
       source  = "gavinbunney/kubectl"
@@ -120,7 +120,7 @@ module "vpc" {
 ###############################################################################
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
-  version = "20.24.0"
+  version = "21.0.4"
 
   cluster_name    = var.cluster_name
   cluster_version = "1.30"
@@ -177,6 +177,7 @@ module "eks" {
 ###############################################################################
 module "karpenter" {
   source = "terraform-aws-modules/eks/aws//modules/karpenter"
+  version = "21.0.4"
 
   cluster_name = module.eks.cluster_name
 
