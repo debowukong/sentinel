@@ -122,12 +122,13 @@ module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "21.0.4"
 
-  cluster_name    = var.cluster_name
-  cluster_version = "1.30"
-
-  cluster_endpoint_public_access  = true
-
-  cluster_addons = {
+  eks_cluster = {
+    name                   = var.cluster_name
+    version                = "1.30"
+    endpoint_public_access = true
+  }
+  
+  addons = {
     coredns                = {}
     eks-pod-identity-agent = {}
     kube-proxy             = {}
@@ -140,7 +141,6 @@ module "eks" {
 
   eks_managed_node_groups = {
     karpenter = {
-      # Starting on 1.30, AL2023 is the default AMI type for EKS managed node groups
       ami_type       = "AL2023_x86_64_STANDARD"
       instance_types = ["m5.large"]
 
