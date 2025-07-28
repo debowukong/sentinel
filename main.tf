@@ -30,8 +30,6 @@ module "eks_karpenter" {
   source  = "terraform-aws-modules/eks/aws//examples/karpenter"
   version = "20.8.3"
   
-  # These are optional - the module has defaults but you can override them
-  cluster_name    = var.cluster_name
-  cluster_version = "1.30"
-  vpc_cidr        = "10.0.0.0/16"
+  # The example module doesn't accept custom input parameters
+  # It uses its own hardcoded values for cluster_name, etc.
 }
