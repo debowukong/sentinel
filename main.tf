@@ -16,7 +16,7 @@ terraform {
     }
     helm = {
       source  = "hashicorp/helm"
-      version = "2.5.1" # Specific older version compatible with block syntax
+      version = "2.5.1" # Use only one specific version
     }
   }
 }
@@ -45,7 +45,7 @@ data "aws_eks_cluster_auth" "cluster" {
 
 module "eks_karpenter" {
   source  = "terraform-aws-modules/eks/aws//examples/karpenter"
-  version = "19.15.3" # Older version compatible with Helm 2.5.1
+  version = "19.15.3" # Version compatible with Helm 2.5.1
   
   # The example module doesn't accept custom input parameters
 }
