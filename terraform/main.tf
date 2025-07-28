@@ -120,15 +120,14 @@ module "vpc" {
 ###############################################################################
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
-  version = "21.0.4"
+  version = "20.24.0"
 
-  eks_cluster = {
-    name                   = var.cluster_name
-    version                = "1.30"
-    endpoint_public_access = true
-  }
+  cluster_name    = var.cluster_name
+  cluster_version = "1.30"
   
-  addons = {
+  cluster_endpoint_public_access = true
+
+  cluster_addons = {
     coredns                = {}
     eks-pod-identity-agent = {}
     kube-proxy             = {}
@@ -177,7 +176,7 @@ module "eks" {
 ###############################################################################
 module "karpenter" {
   source = "terraform-aws-modules/eks/aws//modules/karpenter"
-  version = "21.0.4"
+  version = "20.24.0"
 
   cluster_name = module.eks.cluster_name
 
