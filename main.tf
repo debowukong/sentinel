@@ -1,57 +1,31 @@
-terraform {
-  backend "s3" {
-    bucket = "053936224785-bucket-state-file-karpenter"
-    region = "us-east-1"
-    key    = "karpenter.tfstate"
+data "aws_ami" "ubuntu" {
+  most_recent = true
+
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*"]
   }
 
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "5.79.0"
-    }
-    kubectl = {
-      source  = "gavinbunney/kubectl"
-      version = "~> 1.14"
-    }
-    helm = {
-      source  = "hashicorp/helm"
-      version = "2.5.1"
-    }
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+
+  owners = ["099720109477"] # Canonical
+}
+
+resource "aws_instance" "web" {
+  ami           = data.aws_ami.ubuntu.id
+  instance_type = "t3.micro"
+
+  tags = {
+    Name = "HelloWorld"
   }
 }
 
-provider "aws" {
-  region = var.region
-  # Allow both account IDs for now
-  allowed_account_ids = ["122610525295", "053936224785"]
-}
-
-# Explicitly declare the Karpenter version for Sentinel policy validation
-resource "helm_release" "karpenter" {
-  name       = "karpenter"
-  repository = "oci://public.ecr.aws/karpenter/karpenter"
-  chart      = "karpenter"
-  version    = "v0.36.1"  # Latest version as of July 2025
-  namespace  = "karpenter"
-  
-  # Skip actual installation since we don't have a real cluster
-  create_namespace = true
-  depends_on       = [null_resource.eks_placeholder]
-}
-
-# Placeholder for EKS cluster
-resource "null_resource" "eks_placeholder" {
-  # This represents a placeholder EKS cluster
-}
-
-# This allows provider configuration to work without errors
-data "aws_eks_cluster" "cluster" {
-  name = "example-cluster"
-  depends_on = [null_resource.eks_placeholder]
-}
-
-data "aws_eks_cluster_auth" "cluster" {
-  name = "example-cluster"
-  depends_on = [null_resource.eks_placeholder]
+resource "aws_instance" "this" {
+  ami                     = "ami-0dcc1e21636832c5d"
+  instance_type           = "m5.large"
+  host_resource_group_arn = "arn:aws:resource-groups:us-west-2:123456789012:group/win-testhost"
+  tenancy                 = "host"
 }
