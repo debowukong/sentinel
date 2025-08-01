@@ -1,31 +1,17 @@
-data "aws_ami" "ubuntu" {
-  most_recent = true
+resource "aws_dax_cluster" "bar" {
+  cluster_name       = "cluster-example"
+  iam_role_arn       = data.aws_iam_role.example.arn
+  node_type          = "dax.r4.large"
+  replication_factor = 1
 
-  filter {
-    name   = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*"]
+  # Enable server-side encryption for the DAX cluster
+  server_side_encryption {
+    enabled = true
   }
 
-  filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
-  }
-
-  owners = ["099720109477"] # Canonical
-}
-
-resource "aws_instance" "web" {
-  ami           = data.aws_ami.ubuntu.id
-  instance_type = "t3.micro"
-
+  # Add tags for resource identification and compliance
   tags = {
-    Name = "HelloWorld"
+    Environment = "Production"
+    ManagedBy   = "Terraform"
   }
-}
-
-resource "aws_instance" "this" {
-  ami                     = "ami-0dcc1e21636832c5d"
-  instance_type           = "m5.large"
-  host_resource_group_arn = "arn:aws:resource-groups:us-west-2:123456789012:group/win-testhost"
-  tenancy                 = "host"
 }
