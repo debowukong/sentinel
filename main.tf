@@ -1,15 +1,13 @@
 resource "aws_dax_cluster" "bar" {
   cluster_name       = "cluster-example"
-  iam_role_arn       = data.aws_iam_role.example.arn
+  iam_role_arn       = "arn:aws:iam::123456789012:role/your-existing-iam-role-name" # Replace with the actual ARN
   node_type          = "dax.r4.large"
   replication_factor = 1
 
-  # Enable server-side encryption for the DAX cluster
   server_side_encryption {
     enabled = true
   }
 
-  # Add tags for resource identification and compliance
   tags = {
     Environment = "Production"
     ManagedBy   = "Terraform"
