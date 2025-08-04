@@ -1,15 +1,34 @@
-resource "aws_dax_cluster" "bar" {
-  cluster_name       = "cluster-example"
-  iam_role_arn       = "arn:aws:iam::123456789012:role/your-existing-iam-role-name" # Replace with the actual ARN
-  node_type          = "dax.r4.large"
-  replication_factor = 1
+data "aws_caller_identity" "current" {}
 
-  server_side_encryption {
-    enabled = true
-  }
+resource "aws_backup_vault" "example" {
+  name = "example"
+}
 
-  tags = {
-    Environment = "Production"
-    ManagedBy   = "Terraform"
+data "aws_iam_policy_document" "example" {
+  statement {
+    effect = "Allow"
+
+    principals {
+      type        = "AWS"
+      identifiers = [data.aws_caller_identity.current.account_id]
+    }
+
+    actions = [
+      "backup:DescribeBackupVault",
+      "backup:DeleteBackupVault",
+      "backup:PutBackupVaultAccessPolicy",
+      "backup:DeleteBackupVaultAccessPolicy",
+      "backup:GetBackupVaultAccessPolicy",
+      "backup:StartBackupJob",
+      "backup:GetBackupVaultNotifications",
+      "backup:PutBackupVaultNotifications",
+    ]
+
+    resources = [aws_backup_vault.example.arn]
   }
+}
+
+resource "aws_backup_vault_policy" "example" {
+  backup_vault_name = aws_backup_vault.example.name
+  policy            = data.aws_iam_policy_document.example.json
 }
