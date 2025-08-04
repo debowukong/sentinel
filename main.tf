@@ -25,6 +25,19 @@ data "aws_iam_policy_document" "example" {
     ]
 
     resources = [aws_backup_vault.example.arn]
+
+    # Adding conditions to enforce security best practices
+    condition {
+      test     = "Bool"
+      variable = "aws:SecureTransport"
+      values   = ["true"] # Ensure requests are made over HTTPS
+    }
+
+    condition {
+      test     = "StringEqualsIfExists"
+      variable = "aws:RequestTag/Environment"
+      values   = ["Production"] # Ensure actions are tagged with 'Production' environment
+    }
   }
 }
 
