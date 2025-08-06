@@ -1,16 +1,11 @@
-resource "aws_efs_file_system" "foo" {
-  creation_token = "my-efs-file-system"
-  
-  lifecycle_policy {
-    transition_to_ia = "AFTER_30_DAYS"
-  }
-  
-  tags = {
-    Name = "MyEFSFileSystem"
-  }
-}
+resource "aws_dax_cluster" "bar" {
+  cluster_name       = "cluster-example"
+  iam_role_arn       = "arn:aws:iam::123456789012:role/your-existing-iam-role-name" # Replace with the actual ARN
+  node_type          = "dax.r4.large"
+  replication_factor = 1
 
-resource "aws_efs_access_point" "test" {
-  file_system_id = aws_efs_file_system.foo.id
-  
+  tags = {
+    Environment = "Production"
+    ManagedBy   = "Terraform"
+  }
 }
