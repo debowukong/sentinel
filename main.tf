@@ -2,8 +2,8 @@ provider "aws" {
   region = "us-east-1" # Change as needed
 }
 
-resource "aws_iam_policy" "cloudwatch_vpc_endpoint_policy" {
-  name        = "cloudwatch-vpc-endpoint-policy"
+resource "aws_iam_policy" "acm_private_ca_vpc_endpoint_policy" {
+  name        = "acm-pca-vpc-endpoint-policy"
   description = "Policy that restricts ACM PCA actions to only be allowed through the VPC endpoint"
 
   policy = jsonencode({
@@ -37,3 +37,4 @@ resource "aws_iam_policy" "cloudwatch_vpc_endpoint_policy" {
       }
     ]
   })
+}
