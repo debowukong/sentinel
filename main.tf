@@ -4,7 +4,7 @@ provider "aws" {
 
 resource "aws_iam_policy" "cloudwatch_vpc_endpoint_policy" {
   name        = "cloudwatch-vpc-endpoint-policy"
-  description = "Policy that restricts cloudwatch actions to only be allowed through the VPC endpoint"
+  description = "Policy that restricts ACM PCA actions to only be allowed through the VPC endpoint"
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -12,17 +12,17 @@ resource "aws_iam_policy" "cloudwatch_vpc_endpoint_policy" {
       {
         Effect   = "Deny"
         Action   = [
-          "cloudwatch:DeleteAlarms",
-          "cloudwatch:DeleteDashboards",
-          "cloudwatch:DeleteMetricStream",
-          "cloudwatch:DescribeAlarms",
-          "cloudwatch:GetDashboard",
-          "cloudwatch:GetMetricData",
-          "cloudwatch:GetMetricStatistics",
-          "cloudwatch:ListMetrics",
-          "cloudwatch:PutDashboard",
-          "cloudwatch:PutMetricAlarm",
-          "cloudwatch:PutMetricData"
+          "acm-pca:CreateCertificateAuthority",
+          "acm-pca:DescribeCertificateAuthority",
+          "acm-pca:DeleteCertificateAuthority",
+          "acm-pca:GetCertificateAuthorityCertificate",
+          "acm-pca:ListCertificateAuthorities",
+          "acm-pca:IssueCertificate",
+          "acm-pca:GetCertificate",
+          "acm-pca:RevokeCertificate",
+          "acm-pca:ListPermissions",
+          "acm-pca:CreatePermission",
+          "acm-pca:DeletePermission"
         ]
         Resource = "*"
         Condition = {
@@ -33,8 +33,7 @@ resource "aws_iam_policy" "cloudwatch_vpc_endpoint_policy" {
             ]
           }
         }
-        Sid = "DenyCloudWatchActionsOutsideVPCEndpoint"
+        Sid = "DenyACMPCAActionsOutsideVPCEndpoint"
       }
     ]
   })
-}
